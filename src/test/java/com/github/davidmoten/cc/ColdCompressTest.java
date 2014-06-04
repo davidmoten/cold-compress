@@ -16,4 +16,5 @@ public class ColdCompressTest {
 		System.out.println(new ColdCompress().compress(bytes));
 		is.close();
 	}
+
 }

@@ -1,11 +1,12 @@
 package com.github.davidmoten.cc;
 
-import java.util.Arrays;
+import java.nio.ByteBuffer;
 import java.util.TreeSet;
 
 public class ColdCompress {
 
-	final TreeSet<Integer> sizes;
+	final static private int[] flagBits = new int[] { 1, 2, 4, 8, 16, 32, 64,
+			128 };
 
 	/**
 	 * <p>
@@ -25,21 +26,36 @@ public class ColdCompress {
 	 * </ul>
 	 */
 	public ColdCompress() {
-		sizes = new TreeSet<Integer>(Arrays.asList(1, 2, 4, 16, 32, 128, 256));
 	}
 
 	public byte[] compress(byte[] bytes) {
 		TreeSet<Byte> set = new TreeSet<Byte>();
 		for (byte b : bytes)
 			set.add(b);
-		int n = set.size();
+		short numKeys = (short) set.size();
 		short offset = set.first();
 		TreeSet<Byte> set2 = new TreeSet<Byte>();
 		for (byte b : bytes)
 			set2.add((byte) (b - offset));
-		System.out.println(n + " keys");
+		System.out.println(numKeys + " keys");
 		System.out.println(set2.last() + " is highest value of keys");
 		System.out.println("offset=" + offset);
+
+		int bitsPerKey = 0;
+		for (int i = 0; i < flagBits.length; i++) {
+			if ((flagBits[i] & numKeys) == flagBits[i]) {
+				bitsPerKey = i;
+			}
+		}
+		bitsPerKey += 1;
+		System.out.println("bitsPerKey = " + bitsPerKey);
+
+		short totalSize = 8192;
+
+		ByteBuffer bb = ByteBuffer.allocate(bytes.length);
+		bb.putShort(totalSize);
+		bb.putShort((short) bytes.length);
+		bb.putShort(numKeys);
 		return null;
 	}
 
